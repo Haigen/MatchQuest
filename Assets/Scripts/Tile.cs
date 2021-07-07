@@ -39,9 +39,8 @@ public class Tile : MonoBehaviour
         previousSelected = null;
     }
     
-    void OnMouseDown() 
+    public void Interact() 
     {
-        // 1
         if (render.sprite == null || gm.isShifting) 
         {
             return;
