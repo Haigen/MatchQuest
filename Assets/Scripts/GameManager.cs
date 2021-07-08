@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    private IEnumerator ShiftTilesDown(int x, int yStart, float shiftDelay = .03f) 
+    private IEnumerator ShiftTilesDown(int x, int yStart, float shiftDelay = .05f) 
     {
         isShifting = true;
         List<SpriteRenderer>  renders = new List<SpriteRenderer>();
@@ -126,7 +126,4 @@ public class GameManager : MonoBehaviour
 
         return possibleCharacters[Random.Range(0, possibleCharacters.Count)];
     }
-
-
-
 }

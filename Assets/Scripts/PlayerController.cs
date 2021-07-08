@@ -17,17 +17,9 @@ public class PlayerController : MonoBehaviour
                     RaycastHit raycastHit;
                     if (Physics.Raycast(raycast, out raycastHit))
                     {
-                        Debug.Log("Something Hit");
-                        if (raycastHit.collider.name == "Soccer")
+                        if (raycastHit.collider.CompareTag("Tile"))
                         {
-                            Debug.Log("Soccer Ball clicked");
-                        }
-
-                        //OR with Tag
-
-                        if (raycastHit.collider.CompareTag("SoccerTag"))
-                        {
-                            Debug.Log("Soccer Ball clicked");
+                            raycastHit.collider.GetComponent<Tile>().Interact();
                         }
                     }
                 }

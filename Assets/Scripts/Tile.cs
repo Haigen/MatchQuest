@@ -38,7 +38,12 @@ public class Tile : MonoBehaviour
         render.color = Color.white;
         previousSelected = null;
     }
-    
+
+    void OnMouseDown()
+    {
+        Interact();
+    }
+
     public void Interact() 
     {
         if (render.sprite == null || gm.isShifting) 
