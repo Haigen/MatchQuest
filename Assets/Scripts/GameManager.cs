@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -9,7 +11,13 @@ public class GameManager : MonoBehaviour
     public int gridY = 13;
     public GameObject tPrefab;
     public GameObject canvas;
-    public List<Sprite> tSprites = new List<Sprite>();
+    [Serializable] public class tileInfo
+    {
+        public Sprite tSprite;
+        public string tID;
+        public bool isCleared;
+    }
+    public List<tileInfo> tTiles;
     public bool isShifting;
     public GameObject[,] tiles;
     public int highlightedTileCount;
@@ -33,24 +41,25 @@ public class GameManager : MonoBehaviour
         float startX = transform.position.x;
         float startY = transform.position.y;
         
-        Sprite[] previousLeft = new Sprite[gridY];
-        Sprite previousBelow = null;
+        tileInfo[] previousLeft = new tileInfo[gridY];
+        tileInfo previousBelow = new tileInfo();
         
         for (int x = 0; x < gridX; x++) 
         {
             for (int y = 0; y < gridY; y++) 
             {
-                GameObject newTile = Instantiate(tPrefab, new Vector3(startX + (xOffset * x), startY + (yOffset * y), 0), tPrefab.transform.rotation);
-                newTile.name = "Tile: " + x + "," + y;
-                tiles[x, y] = newTile;
-                List<Sprite> possibleSprites = new List<Sprite>();
-                possibleSprites.AddRange(tSprites);
-                possibleSprites.Remove(previousLeft[y]);
-                possibleSprites.Remove(previousBelow);
-                Sprite newSprite = possibleSprites[Random.Range(0, possibleSprites.Count)];
-                newTile.GetComponent<SpriteRenderer>().sprite = newSprite;
-                previousLeft[y] = newSprite;
-                previousBelow = newSprite;
+                GameObject newTileObj = Instantiate(tPrefab, new Vector3(startX + (xOffset * x), startY + (yOffset * y), 0), tPrefab.transform.rotation);
+                newTileObj.name = "Tile: " + x + "," + y;
+                tiles[x, y] = newTileObj;
+                List<tileInfo> possibleTiles = new List<tileInfo>();
+                possibleTiles.AddRange(tTiles);
+                possibleTiles.Remove(previousLeft[y]);
+                possibleTiles.Remove(previousBelow);
+                tileInfo newTile = possibleTiles[UnityEngine.Random.Range(0, possibleTiles.Count)];
+                newTileObj.GetComponent<Tile>().myInfo = newTile;
+                newTileObj.GetComponent<SpriteRenderer>().sprite = newTileObj.GetComponent<Tile>().myInfo.tSprite;
+                previousLeft[y] = newTile;
+                previousBelow = newTile;
             }
         }
     }
@@ -61,7 +70,7 @@ public class GameManager : MonoBehaviour
         {
             for (int y = 0; y < gridY; y++) 
             {
-                if (tiles[x, y].GetComponent<SpriteRenderer>().sprite == null) 
+                if (tiles[x, y].GetComponent<Tile>().myInfo.isCleared) 
                 {
                     yield return StartCoroutine(ShiftTilesDown(x, y));
                     break;
@@ -81,49 +90,51 @@ public class GameManager : MonoBehaviour
     private IEnumerator ShiftTilesDown(int x, int yStart, float shiftDelay = .05f) 
     {
         isShifting = true;
-        List<SpriteRenderer>  renders = new List<SpriteRenderer>();
+        List<GameObject>  tilesToShift = new List<GameObject>();
         int nullCount = 0;
 
         for (int y = yStart; y < gridY; y++) 
-        {  // 1
-            SpriteRenderer render = tiles[x, y].GetComponent<SpriteRenderer>();
-            if (render.sprite == null) 
+        {
+            GameObject tileToShift = tiles[x, y];
+            if (tileToShift.GetComponent<Tile>().myInfo.isCleared) 
             {
                 nullCount++;
             }
-            renders.Add(render);
+            tilesToShift.Add(tileToShift);
         }
 
         for (int i = 0; i < nullCount; i++) 
         {
             yield return new WaitForSeconds(shiftDelay);
-            for (int k = 0; k < renders.Count - 1; k++) 
+            for (int k = 0; k < tilesToShift.Count - 1; k++) 
             {
-                renders[k].sprite = renders[k + 1].sprite;
-                renders[k + 1].sprite = GetNewSprite(x, gridY - 1);
+                tilesToShift[k].GetComponent<Tile>().myInfo = tilesToShift[k + 1].GetComponent<Tile>().myInfo;
+                tilesToShift[k].GetComponent<Tile>().UpdateGraphics();
+                tilesToShift[k + 1].GetComponent<Tile>().myInfo = GetNewTile(x, gridY - 1);
+                tilesToShift[k + 1].GetComponent<Tile>().UpdateGraphics();
             }
         }
         isShifting = false;
     }
     
-    private Sprite GetNewSprite(int x, int y) 
+    private tileInfo GetNewTile(int x, int y) 
     {
-        List<Sprite> possibleCharacters = new List<Sprite>();
-        possibleCharacters.AddRange(tSprites);
+        List<tileInfo> possibleTiles = new List<tileInfo>();
+        possibleTiles.AddRange(tTiles);
 
         if (x > 0) 
         {
-            possibleCharacters.Remove(tiles[x - 1, y].GetComponent<SpriteRenderer>().sprite);
+            possibleTiles.Remove(tiles[x - 1, y].GetComponent<Tile>().myInfo);
         }
         if (x < gridX - 1) 
         {
-            possibleCharacters.Remove(tiles[x + 1, y].GetComponent<SpriteRenderer>().sprite);
+            possibleTiles.Remove(tiles[x + 1, y].GetComponent<Tile>().myInfo);
         }
         if (y > 0) 
         {
-            possibleCharacters.Remove(tiles[x, y - 1].GetComponent<SpriteRenderer>().sprite);
+            possibleTiles.Remove(tiles[x, y - 1].GetComponent<Tile>().myInfo);
         }
 
-        return possibleCharacters[Random.Range(0, possibleCharacters.Count)];
+        return possibleTiles[UnityEngine.Random.Range(0, possibleTiles.Count)];
     }
 }

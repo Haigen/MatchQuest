@@ -7,6 +7,7 @@ public class Tile : MonoBehaviour
     private static Color selectedColor = new Color(.5f, .5f, .5f, 1.0f);
     private static Tile previousSelected = null;
 
+    public GameManager.tileInfo myInfo;
     private SpriteRenderer render;
     private GameManager gm;
     private bool isSelected = false;
@@ -22,6 +23,11 @@ public class Tile : MonoBehaviour
     void Start()
     {
         gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+    }
+
+    public void UpdateGraphics()
+    {
+        render.sprite = myInfo.tSprite;
     }
 
     private void Select() 
@@ -46,7 +52,7 @@ public class Tile : MonoBehaviour
 
     public void Interact() 
     {
-        if (render.sprite == null || gm.isShifting) 
+        if (myInfo.isCleared || gm.isShifting) 
         {
             return;
         }
@@ -65,7 +71,9 @@ public class Tile : MonoBehaviour
             {
                 if (GetAllAdjacentTiles().Contains(previousSelected.gameObject)) 
                 {
-                    SwapSprite(previousSelected.render);
+                    SwapInfo(previousSelected);
+                    previousSelected.UpdateGraphics();
+                    UpdateGraphics();
                     previousSelected.ClearAllMatches();
                     previousSelected.Deselect();
                     ClearAllMatches();
@@ -79,16 +87,16 @@ public class Tile : MonoBehaviour
         }
     }
     
-    public void SwapSprite(SpriteRenderer render2) 
+    public void SwapInfo(Tile prevTile) 
     {
-        if (render.sprite == render2.sprite) 
+        if (myInfo.tID == prevTile.myInfo.tID) 
         {
             return;
         }
 
-        Sprite tempSprite = render2.sprite;
-        render2.sprite = render.sprite;
-        render.sprite = tempSprite;
+        GameManager.tileInfo tempInfo = prevTile.myInfo;
+        prevTile.myInfo = myInfo;
+        myInfo = tempInfo;
         //SFXManager.instance.PlaySFX(Clip.Swap);
     }
     private GameObject GetAdjacent(Vector2 castDir) 
@@ -114,7 +122,7 @@ public class Tile : MonoBehaviour
     {
         List<GameObject> matchingTiles = new List<GameObject>();
         RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir);
-        while (hit.collider != null && hit.collider.GetComponent<SpriteRenderer>().sprite == render.sprite) 
+        while (hit.collider != null && hit.collider.GetComponent<Tile>().myInfo.tID == myInfo.tID) 
         {
             matchingTiles.Add(hit.collider.gameObject);
             hit = Physics2D.Raycast(hit.collider.transform.position, castDir);
@@ -133,7 +141,7 @@ public class Tile : MonoBehaviour
         {
             for (int i = 0; i < matchingTiles.Count; i++)
             {
-                matchingTiles[i].GetComponent<SpriteRenderer>().sprite = null;
+                matchingTiles[i].GetComponent<Tile>().myInfo.isCleared = true;
             }
             matchFound = true;
         }
@@ -141,14 +149,14 @@ public class Tile : MonoBehaviour
 
     public void ClearAllMatches() 
     {
-        if (render.sprite == null)
+        if (myInfo.isCleared)
             return;
 
         ClearMatch(new Vector2[2] { Vector2.left, Vector2.right });
         ClearMatch(new Vector2[2] { Vector2.up, Vector2.down });
         if (matchFound) 
         {
-            render.sprite = null;
+            myInfo.isCleared = true;
             matchFound = false;
             StopCoroutine(GameManager.instance.FindNullTiles());
             StartCoroutine(GameManager.instance.FindNullTiles());
