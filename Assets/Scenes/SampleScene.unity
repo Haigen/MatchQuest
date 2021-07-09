@@ -315,13 +315,22 @@ MonoBehaviour:
   gridY: 13
   tPrefab: {fileID: 9109368579456996803, guid: c95897b1f7ac94ca5a7f1a852afd1b55, type: 3}
   canvas: {fileID: 0}
-  tSprites:
-  - {fileID: 21300000, guid: 7176545b225f843f88f5d40aa3dd88bd, type: 3}
-  - {fileID: 21300000, guid: 328636e424855438bb19c7e86ab43229, type: 3}
-  - {fileID: 21300000, guid: 92a45b7d673ca4a429adc2a5736a769f, type: 3}
-  - {fileID: 21300000, guid: 95ce85ee4e5044f0e95d3d75e104fbe0, type: 3}
-  - {fileID: 21300000, guid: 1df2a6c98b9ba496e9d348b18718d5d0, type: 3}
-  - {fileID: 21300000, guid: 5053d5801fdc8486d9696962389822af, type: 3}
+  tTiles:
+  - tSprite: {fileID: 21300000, guid: 7176545b225f843f88f5d40aa3dd88bd, type: 3}
+    tID: blue
+    isCleared: 0
+  - tSprite: {fileID: 21300000, guid: 328636e424855438bb19c7e86ab43229, type: 3}
+    tID: green
+    isCleared: 0
+  - tSprite: {fileID: 21300000, guid: 92a45b7d673ca4a429adc2a5736a769f, type: 3}
+    tID: grey
+    isCleared: 0
+  - tSprite: {fileID: 21300000, guid: 1df2a6c98b9ba496e9d348b18718d5d0, type: 3}
+    tID: red
+    isCleared: 0
+  - tSprite: {fileID: 21300000, guid: 5053d5801fdc8486d9696962389822af, type: 3}
+    tID: yellow
+    isCleared: 0
   isShifting: 0
   highlightedTileCount: 0
 --- !u!4 &803560900
