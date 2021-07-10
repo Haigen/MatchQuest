@@ -63,6 +63,7 @@ public class Chest : MonoBehaviour
 
     public void AddGems(int amount)
     {
+        
         if (!isWobbling)
         {
             isWobbling = true;
@@ -99,8 +100,10 @@ public class Chest : MonoBehaviour
 
     IEnumerator WobbleAnim(float duration)
     {
-        GetComponent<RectTransform>().DOPunchScale(new Vector3(1.01f, 1.01f, 1f), duration, 10, 0.1f);
+        transform.SetSiblingIndex(1);
         yield return new WaitForSeconds(duration);
+        GetComponent<RectTransform>().DOPunchScale(new Vector3(1.01f, 1.01f, 1f), duration, 10, 0.1f);
+        transform.SetAsLastSibling();
         isWobbling = false;
     }
 }

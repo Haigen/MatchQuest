@@ -2,49 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class KilledPiece : MonoBehaviour
 {
     public bool falling;
+    public bool finishedFalling = true;
 
-    float speed = 16f;
-    float gravity = 32f;
+    public AnimationCurve speedCurve;
+    public AnimationCurve bounceCurve;
+    
     Vector2 moveDir;
     RectTransform rect;
     Image img;
+    public RectTransform target;
+    public Tween moveTween;
+    public Tween scaleTween;
 
     public void Initialize(Sprite piece, Vector2 start, Vector2 size)
     {
+        finishedFalling = false;
+        target = GameObject.FindGameObjectWithTag("Destination").GetComponent<RectTransform>();
         img = GetComponent<Image>();
         rect = GetComponent<RectTransform>();
         img.sprite = piece;
         rect.anchoredPosition = start;
         rect.sizeDelta = new Vector2(size.x, size.y);
         falling = true;
-
-        moveDir = Vector2.up;
-        moveDir.x = Random.Range(-1.0f, 1.0f);
-        moveDir *= speed / 2;
-
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!falling) return;
-
-        moveDir.y -= Time.deltaTime * gravity;
-        moveDir.x = Mathf.Lerp(moveDir.x, 0, Time.deltaTime);
-        
-        //Scale with fall
-        //rect.sizeDelta -= new Vector2(Time.deltaTime * gravity,Time.deltaTime * gravity );
-        
-        
-        rect.anchoredPosition += moveDir * Time.deltaTime * speed;
-
-
-        if (rect.position.x < -rect.rect.width || rect.position.x > Screen.width + rect.rect.width || rect.position.y < -rect.rect.width || rect.position.y > Screen.height + rect.rect.width)
+        if (falling)
+        {
+            transform.GetComponent<Image>().enabled = true;
             falling = false;
+            StartCoroutine(MoveTo(1f));
+        }
+    }
 
+    IEnumerator MoveTo(float duration)
+    {
+        moveTween = rect.DOAnchorPos(target.anchoredPosition, duration, false).SetEase(speedCurve);
+        scaleTween = rect.DOSizeDelta(new Vector2(rect.sizeDelta.x * 0.5f, rect.sizeDelta.y * 0.5f), duration, false).SetEase(bounceCurve);
+        yield return new WaitForSeconds(duration);
+        transform.GetComponent<Image>().enabled = false;
+        finishedFalling = true;
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Match3 : MonoBehaviour
 {
@@ -70,14 +71,14 @@ public class Match3 : MonoBehaviour
                 {
                     KillPiece(pnt);
                     Node node = getNodeAtPoint(pnt);
-                    NodePiece nodePiece = node.getPiece();
-                    if (nodePiece != null)
+                    NodePiece nodeP = node.getPiece();
+                    if (nodeP != null)
                     {
-                        nodePiece.gameObject.SetActive(false);
-                        dead.Add(nodePiece);
+                        nodeP.gameObject.SetActive(false);
+                        dead.Add(nodeP);
+                        chestObj.GetComponent<Chest>().AddGems(1);
                     }
                     node.SetPiece(null);
-                    chestObj.GetComponent<Chest>().AddGems(1);
                 }
 
                 ApplyGravityToBoard();
@@ -267,11 +268,18 @@ public class Match3 : MonoBehaviour
     {
         List<KilledPiece> available = new List<KilledPiece>();
         for (int i = 0; i < killed.Count; i++)
-            if (!killed[i].falling) available.Add(killed[i]);
+        {
+            if (killed[i].finishedFalling)
+            {
+                available.Add(killed[i]);
+            }
+        }
 
         KilledPiece set = null;
         if (available.Count > 0)
+        {
             set = available[0];
+        }
         else
         {
             GameObject kill = GameObject.Instantiate(killedPiece, killedBoard);
@@ -282,7 +290,9 @@ public class Match3 : MonoBehaviour
 
         int val = getValueAtPoint(p) - 1;
         if (set != null && val >= 0 && val < pieces.Length)
+        {
             set.Initialize(pieces[val], getPositionFromPoint(p), nodePiece.GetComponent<RectTransform>().rect.size);
+        }
     }
 
     List<Point> isConnected(Point p, bool main)
@@ -388,7 +398,7 @@ public class Match3 : MonoBehaviour
     int fillPiece()
     {
         int val = 1;
-        val = (random.Next(0, 100) / (100 / pieces.Length)) + 1;
+        val = Random.Range(val, pieces.Length + 1);
         return val;
     }
 
