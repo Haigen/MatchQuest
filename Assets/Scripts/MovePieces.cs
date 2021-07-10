@@ -23,7 +23,7 @@ public class MovePieces : MonoBehaviour
 
     void Update()
     {
-        if(moving != null)
+        if(moving != null && game.isPlaying)
         {
             Vector2 dir = ((Vector2)Input.mousePosition - mouseStart);
             Vector2 nDir = dir.normalized;
@@ -50,9 +50,12 @@ public class MovePieces : MonoBehaviour
 
     public void MovePiece(NodePiece piece)
     {
-        if (moving != null) return;
-        moving = piece;
-        mouseStart = Input.mousePosition;
+        if (game.isPlaying)
+        {
+            if (moving != null) return;
+            moving = piece;
+            mouseStart = Input.mousePosition;
+        }
     }
 
     public void DropPiece()

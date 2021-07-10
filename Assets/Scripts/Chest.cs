@@ -24,43 +24,6 @@ public class Chest : MonoBehaviour
 
     private bool isWobbling;
 
-    void Start()
-    {
-        
-    }
-    
-    
-
-    // Update is called once per frame
-    void Update()
-    {
-        switch (myTier)
-        {
-            case tiers.wood_empty:
-                curImage.sprite = icons[0];
-                break;
-            case tiers.wood_fill:
-                curImage.sprite = icons[1];
-                break;
-            case tiers.wood_flow:
-                curImage.sprite = icons[2];
-                break;
-            case tiers.stone_fill:
-                curImage.sprite = icons[3];
-                break;
-            case tiers.stone_flow:
-                curImage.sprite = icons[4];
-                break;
-            case tiers.gold_fill:
-                curImage.sprite = icons[5];
-                break;
-            case tiers.gold_flow:
-                curImage.sprite = icons[6];
-                break;
-        }
-        
-    }
-
     public void AddGems(int amount)
     {
         
@@ -105,5 +68,29 @@ public class Chest : MonoBehaviour
         GetComponent<RectTransform>().DOPunchScale(new Vector3(1.01f, 1.01f, 1f), duration, 10, 0.1f);
         transform.SetAsLastSibling();
         isWobbling = false;
+        switch (myTier)
+        {
+            case tiers.wood_empty:
+                curImage.sprite = icons[0];
+                break;
+            case tiers.wood_fill:
+                curImage.sprite = icons[1];
+                break;
+            case tiers.wood_flow:
+                curImage.sprite = icons[2];
+                break;
+            case tiers.stone_fill:
+                curImage.sprite = icons[3];
+                break;
+            case tiers.stone_flow:
+                curImage.sprite = icons[4];
+                break;
+            case tiers.gold_fill:
+                curImage.sprite = icons[5];
+                break;
+            case tiers.gold_flow:
+                curImage.sprite = icons[6];
+                break;
+        }
     }
 }

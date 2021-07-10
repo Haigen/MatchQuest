@@ -12,7 +12,8 @@ public class Match3 : MonoBehaviour
     public RectTransform gameBoard;
     public RectTransform killedBoard;
     public GameObject chestObj;
-
+    public GameObject progressBar;
+    
     [Header("Prefabs")]
     public GameObject nodePiece;
     public GameObject killedPiece;
@@ -28,6 +29,10 @@ public class Match3 : MonoBehaviour
     List<KilledPiece> killed;
 
     System.Random random;
+    private int comboCounter;
+    public bool isPlaying = true;
+    
+    
 
     void Start()
     {
@@ -36,6 +41,13 @@ public class Match3 : MonoBehaviour
 
     void Update()
     {
+        ProgressTimer timer = progressBar.GetComponent<ProgressTimer>();
+        timer.DecrementProgress(0.1f);
+        if (timer.depleted)
+        {
+            isPlaying = false;
+            //GameOver
+        }
         List<NodePiece> finishedUpdating = new List<NodePiece>();
         for(int i = 0; i < update.Count; i++)
         {
@@ -56,6 +68,7 @@ public class Match3 : MonoBehaviour
 
             if (wasFlipped) //If we flipped to make this update
             {
+                comboCounter = 0;
                 flippedPiece = flip.getOtherPiece(piece);
                 AddPoints(ref connected, isConnected(flippedPiece.index, true));
             }
@@ -81,6 +94,8 @@ public class Match3 : MonoBehaviour
                     node.SetPiece(null);
                 }
 
+                comboCounter++; //increase combo todo: sfx here
+                timer.IncrementProgress(.02f * comboCounter);
                 ApplyGravityToBoard();
             }
 
@@ -145,6 +160,8 @@ public class Match3 : MonoBehaviour
                         ResetPiece(piece);
                         fills[x]++;
                     }
+
+
                     break;
                 }
             }
