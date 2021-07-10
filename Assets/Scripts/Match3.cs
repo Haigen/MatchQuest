@@ -9,6 +9,7 @@ public class Match3 : MonoBehaviour
 
     [Header("UI Elements")]
     public Sprite[] pieces;
+    public AnimatorOverrideController[] controllers;
     public RectTransform gameBoard;
     public RectTransform killedBoard;
     public GameObject chestObj;
@@ -31,6 +32,7 @@ public class Match3 : MonoBehaviour
     System.Random random;
     private int comboCounter;
     public bool isPlaying = true;
+    public bool animatingGems;
     
     
 
@@ -102,6 +104,35 @@ public class Match3 : MonoBehaviour
             flipped.Remove(flip); //Remove the flip after update
             update.Remove(piece);
         }
+
+        if (update.Count == 0)
+        {
+            if(!animatingGems)
+                StartCoroutine(AnimGems(3f));
+        }
+        else
+        {
+            StopCoroutine(AnimGems(3f));
+            animatingGems = false;
+        }
+    }
+
+    IEnumerator AnimGems(float idleDelay)
+    {
+        animatingGems = true;
+        yield return new WaitForSeconds(idleDelay);
+        //animate gems after certain amount of time
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Point p = new Point(x, y);
+                Node node = getNodeAtPoint(p);
+                if(!node.getPiece().GetComponent<Animator>().isActiveAndEnabled)
+                    node.getPiece().Animate();
+            }
+        }
+        
     }
 
     public void ApplyGravityToBoard()
@@ -152,7 +183,7 @@ public class Match3 : MonoBehaviour
                             piece = n;
                         }
 
-                        piece.Initialize(newVal, p, pieces[newVal - 1]);
+                        piece.Initialize(newVal, p, pieces[newVal - 1], controllers[newVal - 1]);
                         piece.rect.anchoredPosition = getPositionFromPoint(fallPnt);
 
                         Node hole = getNodeAtPoint(p);
@@ -246,7 +277,7 @@ public class Match3 : MonoBehaviour
                 NodePiece piece = p.GetComponent<NodePiece>();
                 RectTransform rect = p.GetComponent<RectTransform>();
                 rect.anchoredPosition = new Vector2((rect.rect.width / 2) + (rect.rect.width * x), -(rect.rect.width / 2) - (rect.rect.width * y));
-                piece.Initialize(val, new Point(x, y), pieces[val - 1]);
+                piece.Initialize(val, new Point(x, y), pieces[val - 1], controllers[val - 1]);
                 node.SetPiece(piece);
             }
         }

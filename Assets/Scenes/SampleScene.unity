@@ -800,12 +800,19 @@ MonoBehaviour:
     - row: 000000000000000000
     - row: 000000000000000000
   pieces:
-  - {fileID: 21300000, guid: 7176545b225f843f88f5d40aa3dd88bd, type: 3}
-  - {fileID: 21300000, guid: 328636e424855438bb19c7e86ab43229, type: 3}
-  - {fileID: 21300000, guid: 92a45b7d673ca4a429adc2a5736a769f, type: 3}
-  - {fileID: 21300000, guid: 95ce85ee4e5044f0e95d3d75e104fbe0, type: 3}
-  - {fileID: 21300000, guid: 1df2a6c98b9ba496e9d348b18718d5d0, type: 3}
-  - {fileID: 21300000, guid: 5053d5801fdc8486d9696962389822af, type: 3}
+  - {fileID: 21300000, guid: 331c3dd1f3b24094cb30f86b5c70d88f, type: 3}
+  - {fileID: 21300000, guid: 22eec4e8fcd32f44399d9d44efac65b7, type: 3}
+  - {fileID: 21300000, guid: c1a9305b680fc2245bf6040da2770105, type: 3}
+  - {fileID: 21300000, guid: 4abde5eb4627698469e2035eb606140d, type: 3}
+  - {fileID: 21300000, guid: 49e989710c19c0642814458964b534bc, type: 3}
+  - {fileID: 21300000, guid: d9139cc889bf59e409edfc3b2bc6bdaa, type: 3}
+  controllers:
+  - {fileID: 22100000, guid: e729b91ebf3e26840bde84122e92e950, type: 2}
+  - {fileID: 22100000, guid: 60f0446ca2d5e08459127c4f4acda469, type: 2}
+  - {fileID: 22100000, guid: 91842215a002d994e83f3ed3218d0764, type: 2}
+  - {fileID: 22100000, guid: bc0aa05bf95b6b943829564636ec3e96, type: 2}
+  - {fileID: 22100000, guid: 3786ebff2600e7a45b47c0f181ed738f, type: 2}
+  - {fileID: 22100000, guid: 2215734a6764f1c43a5e7e8192a8184d, type: 2}
   gameBoard: {fileID: 280953409}
   killedBoard: {fileID: 1867035810}
   chestObj: {fileID: 353868056}
@@ -815,6 +822,7 @@ MonoBehaviour:
   width: 7
   height: 11
   isPlaying: 1
+  animatingGems: 0
 --- !u!4 &840037381
 Transform:
   m_ObjectHideFlags: 0

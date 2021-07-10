@@ -16,15 +16,19 @@ public class NodePiece : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     bool updating;
     Image img;
+    private Animator animator;
 
-    public void Initialize(int v, Point p, Sprite piece)
+    public void Initialize(int v, Point p, Sprite piece, AnimatorOverrideController overrideController)
     {
         img = GetComponent<Image>();
         rect = GetComponent<RectTransform>();
-
+        animator = GetComponent<Animator>();
+        animator.enabled = false;
         value = v;
         SetIndex(p);
+        animator.runtimeAnimatorController = overrideController;
         img.sprite = piece;
+        
     }
 
     public void SetIndex(Point p)
@@ -79,5 +83,19 @@ public class NodePiece : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         MovePieces.instance.DropPiece();
+    }
+
+    public void Animate()
+    {
+        StartCoroutine(Animating());
+    }
+
+    IEnumerator Animating()
+    {
+        animator.enabled = true;
+        animator.SetBool("Animating", true);
+        yield return new WaitForSeconds(1.0f);
+        animator.SetBool("Animating", false);
+        animator.enabled = false;
     }
 }

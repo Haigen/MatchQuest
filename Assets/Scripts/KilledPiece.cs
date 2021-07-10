@@ -18,6 +18,7 @@ public class KilledPiece : MonoBehaviour
     public RectTransform target;
     public Tween moveTween;
     public Tween scaleTween;
+    public GameObject sparkleObj;
 
     public void Initialize(Sprite piece, Vector2 start, Vector2 size)
     {
@@ -29,6 +30,7 @@ public class KilledPiece : MonoBehaviour
         rect.anchoredPosition = start;
         rect.sizeDelta = new Vector2(size.x, size.y);
         falling = true;
+        sparkleObj.GetComponent<Sparkle>().SparkleAnim();
     }
 
     // Update is called once per frame
