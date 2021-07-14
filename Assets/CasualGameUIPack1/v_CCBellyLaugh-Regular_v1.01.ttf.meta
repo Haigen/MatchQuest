@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 397bb0e01b7de22468a63d9c0095e286
+timeCreated: 1519719749
+licenseType: Store
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: v_CCBellyLaugh
+  fontNames:
+  - v_CCBellyLaugh
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

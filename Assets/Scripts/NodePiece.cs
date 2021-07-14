@@ -23,12 +23,14 @@ public class NodePiece : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         img = GetComponent<Image>();
         rect = GetComponent<RectTransform>();
         animator = GetComponent<Animator>();
-        animator.enabled = false;
+        if (animator != null)
+        {
+            animator.enabled = false;
+            animator.runtimeAnimatorController = overrideController;
+        }
         value = v;
         SetIndex(p);
-        animator.runtimeAnimatorController = overrideController;
         img.sprite = piece;
-        
     }
 
     public void SetIndex(Point p)
@@ -87,7 +89,10 @@ public class NodePiece : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void Animate()
     {
-        StartCoroutine(Animating());
+        if (animator != null)
+        {
+            StartCoroutine(Animating());
+        }
     }
 
     IEnumerator Animating()

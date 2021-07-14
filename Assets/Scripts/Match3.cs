@@ -82,9 +82,11 @@ public class Match3 : MonoBehaviour
             }
             else //If we made a match
             {
+                int pCount = -1;
                 foreach (Point pnt in connected) //Remove the node pieces connected
                 {
-                    KillPiece(pnt);
+                    pCount++;
+                    KillPiece(pnt, pCount);
                     Node node = getNodeAtPoint(pnt);
                     NodePiece nodeP = node.getPiece();
                     if (nodeP != null)
@@ -126,10 +128,14 @@ public class Match3 : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
+
                 Point p = new Point(x, y);
                 Node node = getNodeAtPoint(p);
-                if(!node.getPiece().GetComponent<Animator>().isActiveAndEnabled)
-                    node.getPiece().Animate();
+                if (node.getPiece().GetComponent<Animator>() != null)
+                {
+                    if(!node.getPiece().GetComponent<Animator>().isActiveAndEnabled)
+                        node.getPiece().Animate();
+                }
             }
         }
         
@@ -312,7 +318,7 @@ public class Match3 : MonoBehaviour
             ResetPiece(pieceOne);
     }
 
-    void KillPiece(Point p)
+    void KillPiece(Point p, int delay)
     {
         List<KilledPiece> available = new List<KilledPiece>();
         for (int i = 0; i < killed.Count; i++)
@@ -340,6 +346,7 @@ public class Match3 : MonoBehaviour
         if (set != null && val >= 0 && val < pieces.Length)
         {
             set.Initialize(pieces[val], getPositionFromPoint(p), nodePiece.GetComponent<RectTransform>().rect.size);
+            set.spacingId = delay;
         }
     }
 

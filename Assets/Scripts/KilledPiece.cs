@@ -8,6 +8,7 @@ public class KilledPiece : MonoBehaviour
 {
     public bool falling;
     public bool finishedFalling = true;
+    public int spacingId;
 
     public AnimationCurve speedCurve;
     public AnimationCurve bounceCurve;
@@ -30,7 +31,7 @@ public class KilledPiece : MonoBehaviour
         rect.anchoredPosition = start;
         rect.sizeDelta = new Vector2(size.x, size.y);
         falling = true;
-        sparkleObj.GetComponent<Sparkle>().SparkleAnim();
+        Instantiate(sparkleObj, transform);
     }
 
     // Update is called once per frame
@@ -40,10 +41,16 @@ public class KilledPiece : MonoBehaviour
         {
             transform.GetComponent<Image>().enabled = true;
             falling = false;
-            StartCoroutine(MoveTo(1f));
+            StartCoroutine(InitialDelay());
         }
     }
 
+    IEnumerator InitialDelay()
+    {
+        float delay = (float)spacingId * 0.05f;
+        yield return new WaitForSeconds(delay);
+        StartCoroutine(MoveTo(1f));
+    }
     IEnumerator MoveTo(float duration)
     {
         moveTween = rect.DOAnchorPos(target.anchoredPosition, duration, false).SetEase(speedCurve);
