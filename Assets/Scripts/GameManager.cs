@@ -5,10 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    
+    public List<WorldObjective> worldObjectives;
 
     public void RestartGame()
     {
         SceneManager.LoadScene(0);
+    }
+
+    public void OpenLevel()
+    {
+        SceneManager.LoadScene(1);
     }
 }

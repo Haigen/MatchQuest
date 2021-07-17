@@ -55,6 +55,22 @@ public class TabGroup : MonoBehaviour
         
     }
 
+    public void OpenMainMenu()
+    {
+        int index = 0;
+        for (int i = 0; i < objectsToSwap.Count; i++)
+        {
+            if (i == index)
+            {
+                objectsToSwap[i].SetActive(true);
+            }
+            else
+            {
+                objectsToSwap[i].SetActive(false);
+            }
+        }
+    }
+
     public void ResetTabs()
     {
         foreach (TabButton button in tabButtons)

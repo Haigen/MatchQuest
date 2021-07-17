@@ -65,8 +65,10 @@ public class Chest : MonoBehaviour
     {
         transform.SetSiblingIndex(1);
         yield return new WaitForSeconds(duration);
-        GetComponent<RectTransform>().DOPunchScale(new Vector3(1.01f, 1.01f, 1f), duration, 10, 0.1f);
-        transform.SetAsLastSibling();
+        if (GetComponent<RectTransform>() != null)
+        {
+            GetComponent<RectTransform>().DOPunchScale(new Vector3(1.01f, 1.01f, 1f), duration, 10, 0.1f);
+        }
         isWobbling = false;
         switch (myTier)
         {
