@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -62,6 +63,7 @@ public class MovePieces : MonoBehaviour
     {
         if (moving == null) return;
         //Debug.Log("Dropped");
+        if (newIndex == null) return;
         if (!newIndex.Equals(moving.index))
             game.FlipPieces(moving.index, newIndex, true);
         else

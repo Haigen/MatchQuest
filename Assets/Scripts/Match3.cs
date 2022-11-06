@@ -1,28 +1,32 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class Match3 : MonoBehaviour
 {
-    public ArrayLayout boardLayout;
+    
+    public GameObject worldManager;
 
     [Header("UI Elements")]
-    public Sprite[] pieces;
     public AnimatorOverrideController[] controllers;
     public RectTransform gameBoard;
     public RectTransform killedBoard;
     public GameObject chestObj;
-    public GameObject progressBar;
-    
+
     [Header("Prefabs")]
     public GameObject nodePiece;
     public GameObject killedPiece;
-
+    
+    [Header("Board Settings")]
     public int width;
     public int height;
     int[] fills;
     Node[,] board;
+    public bool isPlaying = true;
+    public bool animatingGems;
 
     List<NodePiece> update;
     List<FlippedPieces> flipped;
@@ -31,25 +35,18 @@ public class Match3 : MonoBehaviour
 
     System.Random random;
     private int comboCounter;
-    public bool isPlaying = true;
-    public bool animatingGems;
+    private ArrayLayout boardLayout;
+    private Sprite[] pieces;
     
-    
-
     void Start()
     {
+        //load the level first
+        LoadLevelData();
         StartGame();
     }
 
     void Update()
     {
-        ProgressTimer timer = progressBar.GetComponent<ProgressTimer>();
-        timer.DecrementProgress(0.1f);
-        if (timer.depleted)
-        {
-            isPlaying = false;
-            //GameOver
-        }
         List<NodePiece> finishedUpdating = new List<NodePiece>();
         for(int i = 0; i < update.Count; i++)
         {
@@ -99,7 +96,7 @@ public class Match3 : MonoBehaviour
                 }
 
                 comboCounter++; //increase combo todo: sfx here
-                timer.IncrementProgress(.02f * comboCounter);
+               
                 ApplyGravityToBoard();
             }
 
@@ -131,14 +128,41 @@ public class Match3 : MonoBehaviour
 
                 Point p = new Point(x, y);
                 Node node = getNodeAtPoint(p);
-                if (node.getPiece().GetComponent<Animator>() != null)
+                if (node != null)
                 {
-                    if(!node.getPiece().GetComponent<Animator>().isActiveAndEnabled)
-                        node.getPiece().Animate();
+                    if (node.getPiece() != null)
+                    {
+                        if (node.getPiece().GetComponent<Animator>() != null)
+                        {
+                            if(!node.getPiece().GetComponent<Animator>().isActiveAndEnabled)
+                                node.getPiece().Animate();
+                        }  
+                    }
                 }
             }
         }
         
+    }
+
+    void LoadLevelData()
+    {
+        //load board
+        if (worldManager != null)
+        {
+            int lvl = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().curLevel;
+            boardLayout = worldManager.GetComponent<WorldData>().LoadBoard(lvl);
+            if (boardLayout == null)
+            {
+                print("ERROR CANNOT LOAD BOARD");
+            }
+            //load pieces
+            pieces = worldManager.GetComponent<WorldData>().LoadPieces(lvl);
+            if (pieces.Length <= 0)
+            {
+                print("ERROR CANNOT LOAD PIECES");
+                pieces = worldManager.GetComponent<WorldData>().LoadPieces(1);
+            }
+        }
     }
 
     public void ApplyGravityToBoard()
@@ -169,36 +193,61 @@ public class Match3 : MonoBehaviour
                         //Make a new hole
                         gotten.SetPiece(null);
                     }
-                    else//Use dead ones or create new pieces to fill holes (hit a -1) only if we choose to
+                    if(nextVal == -1)//Use dead ones or create new pieces to fill holes (hit a -1) only if we choose to
                     {
-                        int newVal = fillPiece();
-                        NodePiece piece;
-                        Point fallPnt = new Point(x, (-1 - fills[x]));
-                        if(dead.Count > 0)
+                        bool vGot = false;
+                        //we need to check if there's more pieces above this gap
+                        for (int ver = (ny - 1); ver >= -1; ver--)
                         {
-                            NodePiece revived = dead[0];
-                            revived.gameObject.SetActive(true);
-                            piece = revived;
+                            Point nextVer = new Point(x, ver);
+                            int verCheck = getValueAtPoint(nextVer);
+                            if (verCheck == 0)
+                                continue;
+                            if (verCheck != -1)
+                            {
+                                Node gotten = getNodeAtPoint(nextVer);
+                                NodePiece vP = gotten.getPiece();
 
-                            dead.RemoveAt(0);
+                                //Set the hole
+                                node.SetPiece(vP);
+                                update.Add(vP);
+
+                                //Make a new hole
+                                gotten.SetPiece(null);
+                                vGot = true;
+                                break;
+                            }
                         }
-                        else
+
+                        if (!vGot)
                         {
-                            GameObject obj = Instantiate(nodePiece, gameBoard);
-                            NodePiece n = obj.GetComponent<NodePiece>();
-                            piece = n;
+                            int newVal = fillPiece();
+                            NodePiece piece;
+                            Point fallPnt = new Point(x, (-1 - fills[x]));
+                            if (dead.Count > 0)
+                            {
+                                NodePiece revived = dead[0];
+                                revived.gameObject.SetActive(true);
+                                piece = revived;
+
+                                dead.RemoveAt(0);
+                            }
+                            else
+                            {
+                                GameObject obj = Instantiate(nodePiece, gameBoard);
+                                NodePiece n = obj.GetComponent<NodePiece>();
+                                piece = n;
+                            }
+
+                            piece.Initialize(newVal, p, pieces[newVal - 1], controllers[newVal - 1]);
+                            piece.rect.anchoredPosition = getPositionFromPoint(fallPnt);
+
+                            Node hole = getNodeAtPoint(p);
+                            hole.SetPiece(piece);
+                            ResetPiece(piece);
+                            fills[x]++;
                         }
-
-                        piece.Initialize(newVal, p, pieces[newVal - 1], controllers[newVal - 1]);
-                        piece.rect.anchoredPosition = getPositionFromPoint(fallPnt);
-
-                        Node hole = getNodeAtPoint(p);
-                        hole.SetPiece(piece);
-                        ResetPiece(piece);
-                        fills[x]++;
                     }
-
-
                     break;
                 }
             }
@@ -298,24 +347,37 @@ public class Match3 : MonoBehaviour
     public void FlipPieces(Point one, Point two, bool main)
     {
         if (getValueAtPoint(one) < 0) return;
-
-        Node nodeOne = getNodeAtPoint(one);
-        NodePiece pieceOne = nodeOne.getPiece();
-        if (getValueAtPoint(two) > 0)
+        bool horzCheck = false;
+        bool vertCheck = false;
+        if (one.x - 1 == two.x && one.y == two.y || one.x + 1 == two.x && one.y == two.y)
+            horzCheck = true;
+        if (one.y - 1 == two.y && one.x == two.x || one.y + 1 == two.y && one.x == two.x)
+            vertCheck = true;
+        
+        if (horzCheck || vertCheck)
         {
-            Node nodeTwo = getNodeAtPoint(two);
-            NodePiece pieceTwo = nodeTwo.getPiece();
-            nodeOne.SetPiece(pieceTwo);
-            nodeTwo.SetPiece(pieceOne);
+            bool diagCheck = horzCheck && vertCheck;
+            if (!diagCheck) //make sure piece is actually next to us vert/hor but not both
+            {
+                Node nodeOne = getNodeAtPoint(one);
+                NodePiece pieceOne = nodeOne.getPiece();
+                if (getValueAtPoint(two) > 0)
+                {
+                    Node nodeTwo = getNodeAtPoint(two);
+                    NodePiece pieceTwo = nodeTwo.getPiece();
+                    nodeOne.SetPiece(pieceTwo);
+                    nodeTwo.SetPiece(pieceOne);
 
-            if(main)
-                flipped.Add(new FlippedPieces(pieceOne, pieceTwo));
+                    if(main)
+                        flipped.Add(new FlippedPieces(pieceOne, pieceTwo));
 
-            update.Add(pieceOne);
-            update.Add(pieceTwo);
+                    update.Add(pieceOne);
+                    update.Add(pieceTwo);
+                }
+                else
+                    ResetPiece(pieceOne);
+            }
         }
-        else
-            ResetPiece(pieceOne);
     }
 
     void KillPiece(Point p, int delay)
@@ -399,7 +461,7 @@ public class Match3 : MonoBehaviour
             if (same > 1)
                 AddPoints(ref connected, line);
         }
-
+        /*
         for(int i = 0; i < 4; i++) //Check for a 2x2
         {
             List<Point> square = new List<Point>();
@@ -422,7 +484,7 @@ public class Match3 : MonoBehaviour
             if (same > 2)
                 AddPoints(ref connected, square);
         }
-
+        */
         if(main) //Checks for other matches along the current match
         {
             for (int i = 0; i < connected.Count; i++)
