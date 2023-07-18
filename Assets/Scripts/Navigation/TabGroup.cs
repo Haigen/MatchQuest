@@ -11,6 +11,7 @@ public class TabGroup : MonoBehaviour
     public Sprite tabActive;
     public TabButton selectedTab;
     public List<GameObject> objectsToSwap;
+    public GameObject tabButtonGroup;
 
     public void Subscribe(TabButton button)
     {
@@ -57,6 +58,7 @@ public class TabGroup : MonoBehaviour
 
     public void OpenMainMenu()
     {
+        tabButtonGroup.SetActive(true);
         int index = 0;
         for (int i = 0; i < objectsToSwap.Count; i++)
         {

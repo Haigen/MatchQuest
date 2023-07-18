@@ -149,11 +149,24 @@ public class Match3 : MonoBehaviour
         //load board
         if (worldManager != null)
         {
-            int lvl = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().curLevel;
+            GameManager gm;
+            int lvl;
+            if (GameObject.FindGameObjectWithTag("GameManager") != null)
+            {
+                gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+                lvl = gm.curLevel;
+            }
+            else
+            {
+                print("ERROR GAME MANAGER NOT FOUND");
+                lvl = 1;
+            }
+            
             boardLayout = worldManager.GetComponent<WorldData>().LoadBoard(lvl);
             if (boardLayout == null)
             {
                 print("ERROR CANNOT LOAD BOARD");
+                boardLayout = worldManager.GetComponent<WorldData>().LoadBoard(1);
             }
             //load pieces
             pieces = worldManager.GetComponent<WorldData>().LoadPieces(lvl);
@@ -163,6 +176,7 @@ public class Match3 : MonoBehaviour
                 pieces = worldManager.GetComponent<WorldData>().LoadPieces(1);
             }
         }
+        
     }
 
     public void ApplyGravityToBoard()
